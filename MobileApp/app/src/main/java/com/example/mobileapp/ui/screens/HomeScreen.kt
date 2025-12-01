@@ -94,7 +94,7 @@ fun HomeScreen(
                         val title = Uri.encode(service.title)
                         val master = Uri.encode(service.master)
                         val cost = service.cost
-                        navController.navigate("item/$title/$master/$cost")
+                        navController.navigate("item/$title/$master/$cost/${false}")
                     }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
