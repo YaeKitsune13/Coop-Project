@@ -28,19 +28,19 @@ import com.example.mobileapp.ui.elements.ServiceCard
 
 @Preview
 @Composable
-fun PreviewHomeScreen(){
+fun PreviewHistoryScreen(){
     val navController = rememberNavController()
-    HomeScreen(navController)
+    HistoryScreen(navController)
 }
 
 @Composable
-fun HomeScreen(
+fun HistoryScreen(
     navController: NavController
 ){
-    val vmServices = ServicesViewModel()
+    val vmServives = ServicesViewModel();
     // Список услуг (пока захардкожен, потом можно подменить данными с бэкенда)
     val services = remember {
-        vmServices.getAllService()
+        vmServives.getServiceHistory()
     }
 
     var finderText by remember { mutableStateOf("") }
@@ -60,7 +60,7 @@ fun HomeScreen(
             item {
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
-                    text = "Наши услуги",
+                    text = "История услуг",
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 25.sp,
                     fontWeight = FontWeight.Bold

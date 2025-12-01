@@ -42,6 +42,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.compose.AppTheme
+import com.example.mobileapp.ui.screens.HistoryScreen
 import com.example.mobileapp.ui.screens.HomeScreen
 import com.example.mobileapp.ui.screens.OpenedServiceCardScreen
 import com.example.mobileapp.ui.screens.SettingsScreen
@@ -137,7 +138,7 @@ fun AppNavigation(isDarkTheme: Boolean, onThemeChanged: (Boolean) -> Unit) {
             }
 
             composable(Routes.PROFILE) {
-                // ProfileScreen(navController)
+                HistoryScreen(navController = navController)
             }
         }
     }
