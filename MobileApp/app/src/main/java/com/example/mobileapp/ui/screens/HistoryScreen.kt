@@ -23,34 +23,23 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.mobileapp.frontback.ServicesViewModel
-import com.example.mobileapp.ui.elements.AppLabeledTextField
-import com.example.mobileapp.ui.elements.ServiceCard
+import com.example.mobileapp.ui.elements.HistoryServiceCard
 
 @Preview
 @Composable
-fun PreviewHomeScreen(){
+fun PreviewHistoryScreen(){
     val navController = rememberNavController()
-    HomeScreen(navController)
+    HistoryScreen(navController)
 }
 
 @Composable
-fun HomeScreen(
+fun HistoryScreen(
     navController: NavController
 ){
-    val vmServices = ServicesViewModel()
+    val vmServives = ServicesViewModel();
     // Список услуг (пока захардкожен, потом можно подменить данными с бэкенда)
-    val services = remember {
-        vmServices.getAllService()
-    }
-
-    var finderText by remember { mutableStateOf("") }
-
-    // Фильтрация по названию услуги и мастеру
-    val filteredServices = services.filter { service ->
-        if (finderText.isBlank()) return@filter true
-        val query = finderText.trim().lowercase()
-        service.title.lowercase().contains(query) ||
-                service.master.lowercase().contains(query)
+    var services by remember {
+        mutableStateOf(vmServives.getServiceHistory())
     }
 
     Box(modifier = Modifier.fillMaxSize()){
@@ -60,33 +49,24 @@ fun HomeScreen(
             item {
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
-                    text = "Наши услуги",
+                    text = "История услуг",
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 25.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
 
-            // Поле поиска
-            item {
-                AppLabeledTextField(
-                    label = "Поиск услуг",
-                    value = finderText,
-                    onValueChange = { finderText = it }
-                )
-            }
-
             item{
                 Text(
-                    text = "Кол-во услуг ${filteredServices.size}",
+                    text = "Кол-во услуг ${services.size}",
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 15.sp,
                 )
             }
 
             // Список отфильтрованных услуг
-            items(filteredServices) { service ->
-                ServiceCard(
+            items(services, key = { it.hashCode() }) { service ->
+                HistoryServiceCard(
                     title = service.title,
                     description = "Мастер ${service.master}",
                     cost = service.cost,
@@ -94,7 +74,13 @@ fun HomeScreen(
                         val title = Uri.encode(service.title)
                         val master = Uri.encode(service.master)
                         val cost = service.cost
-                        navController.navigate("item/$title/$master/$cost/${false}")
+                        navController.navigate("item/$title/$master/$cost/${true}")
+                    },
+                    onDelete = {
+                        // 1. Вызываем метод для бэкенд-логики
+                        vmServives.removeServiceInHistory(service)
+                        // 2. Обновляем UI, удаляя элемент из локального списка
+                        services = vmServives.getServiceHistory()
                     }
                 )
                 Spacer(modifier = Modifier.height(8.dp))

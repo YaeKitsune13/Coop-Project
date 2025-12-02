@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mobileapp.frontback.ServicesViewModel
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
@@ -26,7 +27,8 @@ import java.time.format.DateTimeFormatter
 fun PreviewService() {
     OpenedServiceCardScreen(
         title = "Мужская стрижка",
-        master = "Анна"
+        master = "Анна",
+        onBooked = {}
     )
 }
 
@@ -40,10 +42,12 @@ fun OpenedServiceCardScreen(
         LocalTime.of(12, 0),
         LocalTime.of(17, 30)
     ),
-    onBook: (LocalDate, LocalTime) -> Unit = { _, _ -> },
-    onCancel: () -> Unit = {}
+    onBooked: () -> Unit = {},
+    onCancel: () -> Unit = {},
+    redactMode: Boolean = false
 ) {
     // Состояние
+    val servicesViewModel = remember { ServicesViewModel() }
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
     var selectedTime by remember { mutableStateOf<LocalTime?>(null) }
 
@@ -84,7 +88,20 @@ fun OpenedServiceCardScreen(
         item {
             ActionButtons(
                 enabled = selectedTime != null,
-                onBook = { selectedTime?.let { onBook(selectedDate, it) } },
+                onBook = {
+                    selectedTime?.let { time ->
+                        if (redactMode){
+                            servicesViewModel.postServiceToHistory(title, master, selectedDate, time)
+                            onBooked()
+                            onCancel()
+                        }
+                        else{
+                            servicesViewModel.bookService(title, master, selectedDate, time)
+                            onBooked()
+                            onCancel()
+                        }
+                    }
+                },
                 onCancel = onCancel
             )
         }

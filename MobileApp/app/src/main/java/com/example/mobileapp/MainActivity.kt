@@ -42,6 +42,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.compose.AppTheme
+import com.example.mobileapp.ui.screens.HistoryScreen
 import com.example.mobileapp.ui.screens.HomeScreen
 import com.example.mobileapp.ui.screens.OpenedServiceCardScreen
 import com.example.mobileapp.ui.screens.SettingsScreen
@@ -52,7 +53,7 @@ object Routes {
     const val PROFILE = "profile"
     const val LOGIN = "login"
     const val REGISTRATION = "registration"
-    const val ITEM = "item/{title}/{master}/{cost}"
+    const val ITEM = "item/{title}/{master}/{cost}/{redact}"
 }
 
 class MainActivity : ComponentActivity() {
@@ -113,18 +114,20 @@ fun AppNavigation(isDarkTheme: Boolean, onThemeChanged: (Boolean) -> Unit) {
                 arguments = listOf(
                     navArgument("title") { type = NavType.StringType },
                     navArgument("master") { type = NavType.StringType },
-                    navArgument("cost") { type = NavType.IntType }
+                    navArgument("cost") { type = NavType.IntType },
+                    navArgument("redact") { type = NavType.BoolType }
                 )
             ) { backStackEntry ->
                 val title = backStackEntry.arguments?.getString("title") ?: ""
                 val master = backStackEntry.arguments?.getString("master") ?: ""
                 // val cost = backStackEntry.arguments?.getInt("cost") ?: 0
+                val redact = backStackEntry.arguments?.getBoolean("redact") ?: false
 
                 OpenedServiceCardScreen(
                     title = title,
                     master = master,
-                    onBook = { _, _ -> },
-                    onCancel = { navController.popBackStack() }
+                    onCancel = { navController.popBackStack() },
+                    redactMode = redact
                 )
             }
 
@@ -137,7 +140,7 @@ fun AppNavigation(isDarkTheme: Boolean, onThemeChanged: (Boolean) -> Unit) {
             }
 
             composable(Routes.PROFILE) {
-                // ProfileScreen(navController)
+                HistoryScreen(navController = navController)
             }
         }
     }
