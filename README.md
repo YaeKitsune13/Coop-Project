@@ -10,8 +10,8 @@
 |---|------------------|------------------|----------------|---------------------|
 | 1 | `initializeAllViews()` | **Нет прямого аналога** | - | Проект использует Jetpack Compose, где нет необходимости в ручной инициализации View-элементов. Compose автоматически управляет UI-элементами через `@Composable` функции. |
 | 2 | `setupAllClickListeners()` | **Нет прямого аналога** | - | В Jetpack Compose слушатели устанавливаются декларативно через `onClick` параметры в composable-функциях (например, `Button(onClick = {})`, `clickable { }`). |
-| 3 | `addNewItem()` | **Частично: `addHistory()`** | `dataworker.kt:108-113` | Метод `addHistory()` в `ServiceRepository` добавляет новую запись в историю услуг. Для добавления услуг используется начальная загрузка в `seedServicesIfNeeded()`. |
-| 4 | `editSelectedItem()` | **Да: `postServiceToHistory()`** | `Services.kt:38-48` | Метод обновляет выбранный элемент в истории по названию и мастеру. Изменяет дату и время записи. |
+| 3 | `addNewItem()` | **Частично: `addHistory()`** | `dataworker.kt:108-113` | Метод `addHistory()` в `ServiceRepository` добавляет новую запись в историю услуг. Для услуг используется предзаполнение данных через `seedServicesIfNeeded()` (только при первом запуске). |
+| 4 | `editSelectedItem()` | **Да: `postServiceToHistory()`** | `Services.kt:38-48` | Метод обновляет выбранный элемент в истории забронированных услуг по названию и мастеру. Изменяет дату и время записи (не основной каталог услуг). |
 | 5 | `removeSelectedItem()` | **Да: `removeHistory()` / `removeServiceInHistory()`** | `dataworker.kt:115-125`, `Services.kt:55-57` | Метод удаляет запись из истории услуг, сохраняет файл без удаленного элемента. |
 | 6 | `displayAllData()` | **Да: `getAllService()` / `getServiceHistory()`** | `Services.kt:26`, `Services.kt:59` | Загружает все данные из JSON-файла. UI отображение через `HomeScreen.kt` и `HistoryScreen.kt` с использованием `LazyColumn`. |
 | 7 | `loadJsonFromFile()` | **Да: `readList()` / `readServices()` / `readHistory()`** | `dataworker.kt:43-51` | Метод `readList()` читает JSON-файл, проверяет существование, возвращает список или пустой массив. |
@@ -26,8 +26,8 @@
 | 11 | `filterDataByStatus()` | **Да: `filterByStatus()` / `filterServices()`** | `dataworker.kt:135`, `Services.kt:61` | Фильтрует услуги по статусу (true/false). Отдельно от отображения. |
 | 12 | `searchDataByName()` | **Да: `searchByName()` / `searchServiceByName()`** | `dataworker.kt:137-141`, `Services.kt:63` | Принимает строку поиска, возвращает отфильтрованный список по названию. |
 | 13 | `sortDataAlphabetically()` | **Да: `sortAlphabetically()` / `sortDataAlphabetically()`** | `dataworker.kt:143-147`, `Services.kt:65` | Сортирует данные по названию, сохраняет и возвращает отсортированный список. |
-| 14 | `exportDataToFile()` | **Да: `exportDataToFile()`** | `dataworker.kt:149-154`, `Services.kt:67` | Экспортирует данные в отдельный файл с заданным постфиксом. |
-| 14+ | `createDataBackup()` | **Да: `createDataBackup()`** | `dataworker.kt:156-160`, `Services.kt:69` | Создает резервную копию данных с временной меткой. |
+| 14 | `exportDataToFile()` | **Да: `exportDataToFile()` / `exportData()`** | `dataworker.kt:149-154`, `Services.kt:67` | Экспортирует данные в отдельный файл с заданным постфиксом. |
+| 14+ | `createDataBackup()` | **Да: `createDataBackup()` / `createBackup()`** | `dataworker.kt:156-160`, `Services.kt:69` | Создает резервную копию данных с временной меткой. |
 
 ---
 
