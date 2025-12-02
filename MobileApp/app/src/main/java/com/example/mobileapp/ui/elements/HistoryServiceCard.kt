@@ -53,7 +53,7 @@ fun HistoryServiceCard(
         modifier = Modifier
             .fillMaxSize()
             .padding(vertical = 8.dp)
-            .height(80.dp)
+            .height(110.dp)
             .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
@@ -68,7 +68,7 @@ fun HistoryServiceCard(
             Box(
                 modifier = Modifier
                     .padding(8.dp)
-                    .size(64.dp)
+                    .size(74.dp)
                     .background(MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(12.dp))
             )
 

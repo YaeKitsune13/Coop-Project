@@ -1,31 +1,32 @@
 package com.example.mobileapp.frontback
 
+import android.content.Context
+import com.example.mobileapp.data.ServiceRepository
+import com.example.mobileapp.data.ServiceRepositoryProvider
 import java.time.LocalDate
 import java.time.LocalTime
 
-class ServicesViewModel{
-    //! ЗАМЕНИ НА СВОЮ МОДЕЛЬ!
+class ServicesViewModel(private val repository: ServiceRepository) {
     data class ServiceItem(
-        val title: String,      // Название услуги
-        val master: String,     // Имя мастера
-        val cost: Int,          // Цена услуги
+        val title: String,
+        val master: String,
+        val cost: Int,
         val date: LocalDate? = null,
-        val time: LocalTime? = null
-    ) // ! ЗАМЕНИ НА СВОЮ МОДЕЛЬ
+        val time: LocalTime? = null,
+        val status: Boolean = true
+    )
 
-    fun getAllService() : List<ServiceItem>{
-        // Инициализируем список услуг (текущие данные - примеры для тестирования)
-        val services = // Вставь сюда выдачу всех нынешних услуг (нижнее можешь удалить)
-            listOf(
-                ServiceItem("Мужская стрижка", "Анна", 2500),    // Первая услуга
-                ServiceItem("Стрижка бороды", "Иван", 1200),     // Вторая услуга
-                ServiceItem("Детская стрижка", "Анна", 1800)     // Третья услуга
-            )
-        return services  // Возвращаем полученный список
+    companion object {
+        fun create(context: Context): ServicesViewModel {
+            val repository = ServiceRepositoryProvider.get(context)
+            return ServicesViewModel(repository)
+        }
     }
 
+    fun getAllService(): List<ServiceItem> = repository.getServices()
+
     fun bookService(title: String, master: String, date: LocalDate, time: LocalTime): Boolean {
-        val serviceTemplate = getAllService().find { it.title == title && it.master == master }
+        val serviceTemplate = repository.getServices().find { it.title == title && it.master == master }
         return if (serviceTemplate != null) {
             val bookedService = serviceTemplate.copy(date = date, time = time)
             putServiceToHistory(bookedService)
@@ -35,40 +36,41 @@ class ServicesViewModel{
     }
 
     fun postServiceToHistory(title: String, master: String, date: LocalDate, time: LocalTime): Boolean {
-        val serviceTemplate = getAllService().find { it.title == title && it.master == master }
-        return if (serviceTemplate != null) {
-            val updatedService = serviceTemplate.copy(date = date, time = time)
-            // TODO: Перекинь себе для обнавления историй изменяется только дата и время
-            println("Service updated: $updatedService")
+        val currentHistory = repository.getHistory().toMutableList()
+        val index = currentHistory.indexOfFirst { it.title == title && it.master == master }
+        return if (index != -1) {
+            currentHistory[index] = currentHistory[index].copy(date = date, time = time)
+            repository.saveHistory(currentHistory)
             true
         } else {
             false
         }
     }
 
-    fun putServiceToHistory(service : ServiceItem) : Boolean{
-        val serviceTemplate = getAllService().find { it.title == service.title && it.master == service.master }
-        return if (serviceTemplate != null) {
-            // TODO: Перекинь себе для добавления историй
-            println("Service added to history: $service")
-            true
-        } else {
-            false
-        }
+    fun putServiceToHistory(service: ServiceItem): Boolean {
+        repository.addHistory(service)
+        return true
     }
 
-
-    fun removeServiceInHistory(service : ServiceItem){
-        // TODO: Перекинь себе для удаления сервиса из историй
-        // backend.removeServiceFromHistory(service.id)
+    fun removeServiceInHistory(service: ServiceItem) {
+        repository.removeHistory(service)
     }
 
-    fun getServiceHistory(): List<ServiceItem> {
-        // TODO: Добавь чтение историй
-        return listOf(
-            ServiceItem("Мужская стрижка", "Анна", 2500, LocalDate.now().minusDays(10), LocalTime.of(12, 30)),
-            ServiceItem("Стрижка бороды", "Иван", 1200, LocalDate.now().minusDays(4), LocalTime.of(15, 0)),
-            ServiceItem("Детская стрижка", "Анна", 1800, LocalDate.now().minusDays(1), LocalTime.of(11, 0))
-        )
-    }
+    fun getServiceHistory(): List<ServiceItem> = repository.getHistory()
+
+    fun filterServices(status: Boolean): List<ServiceItem> = repository.filterByStatus(status)
+
+    fun searchServiceByName(query: String): List<ServiceItem> = repository.searchByName(query)
+
+    fun sortDataAlphabetically(): List<ServiceItem> = repository.sortAlphabetically()
+
+    fun exportData(postfix: String) = repository.exportDataToFile(postfix)
+
+    fun createBackup() = repository.createDataBackup()
+
+    fun resetServices() = repository.resetServicesToDefaults()
+
+    fun getServicesJson(): String = repository.getServicesAsJson()
+
+    fun getHistoryJson(): String = repository.getHistoryAsJson()
 }

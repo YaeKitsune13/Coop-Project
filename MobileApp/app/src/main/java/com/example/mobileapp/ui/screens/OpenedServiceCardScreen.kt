@@ -11,10 +11,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mobileapp.MainActivity
 import com.example.mobileapp.frontback.ServicesViewModel
 import java.time.Instant
 import java.time.LocalDate
@@ -46,12 +48,11 @@ fun OpenedServiceCardScreen(
     onCancel: () -> Unit = {},
     redactMode: Boolean = false
 ) {
-    // Состояние
-    val servicesViewModel = remember { ServicesViewModel() }
+    val context = LocalContext.current
+    val servicesViewModel = remember { ServicesViewModel.create(context) }
+    val activity = context as? MainActivity
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
     var selectedTime by remember { mutableStateOf<LocalTime?>(null) }
-
-    val timeSlots = timeSlots
 
     val dateFormatter = remember { DateTimeFormatter.ofPattern("EEEE, d MMMM, yyyy") }
     val timeFormatter = remember { DateTimeFormatter.ofPattern("HH:mm") }
@@ -60,9 +61,9 @@ fun OpenedServiceCardScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        contentPadding = PaddingValues(top = 12.dp, bottom = 100.dp)
+            .padding(horizontal = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(top = 24.dp, bottom = 100.dp)
     ) {
         item { InfoCard(title = title, master = master) }
 
@@ -100,9 +101,15 @@ fun OpenedServiceCardScreen(
                             onBooked()
                             onCancel()
                         }
+                        activity?.displayMessage(
+                            "Бронь на ${selectedDate.format(dateFormatter)} в ${time.format(timeFormatter)}"
+                        )
                     }
                 },
-                onCancel = onCancel
+                onCancel = {
+                    activity?.displayMessage("Выбор времени отменён")
+                    onCancel()
+                }
             )
         }
     }

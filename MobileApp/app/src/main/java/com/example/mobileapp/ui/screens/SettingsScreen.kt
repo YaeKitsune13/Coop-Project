@@ -1,5 +1,9 @@
 package com.example.mobileapp.ui.screens
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.view.Gravity
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -7,6 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -17,10 +22,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mobileapp.MainActivity
+import com.example.mobileapp.frontback.ServicesViewModel
+import androidx.core.content.getSystemService
 
 // --------- КНОПКА-ПЕРЕКЛЮЧАТЕЛЬ ---------
 
@@ -118,18 +127,28 @@ fun ThemeSwitchCard(
 
 @Composable
 fun SettingsScreen(
-    isDarkTheme: Boolean, // <--- Принимаем состояние снаружи
+    isDarkTheme: Boolean,
     modifier: Modifier = Modifier,
     onThemeChange: (Boolean) -> Unit = {}
 ) {
-    // УДАЛЕНО: var isDarkTheme by remember { mutableStateOf(false) }
-    // (это ломало логику, перекрывая реальное состояние)
+    val context = LocalContext.current
+    val activity = context as? MainActivity
+    val clipboard = context.getSystemService<ClipboardManager>()
+    val servicesViewModel = remember { ServicesViewModel.create(context) }
+
+    fun copyJsonToClipboard() {
+        val json = servicesViewModel.getServicesJson()
+        clipboard?.setPrimaryClip(ClipData.newPlainText("services_json", json))
+        Toast.makeText(context, "JSON услуг скопирован", Toast.LENGTH_SHORT).apply {
+            setGravity(Gravity.BOTTOM, 0, 120)
+        }.show()
+    }
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
-            .padding(horizontal = 24.dp, vertical = 32.dp)
+            .padding(horizontal = 24.dp, vertical = 24.dp)
     ) {
         Text(
             text = "Настройки",
@@ -141,11 +160,26 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         ThemeSwitchCard(
-            checked = isDarkTheme, // Используем параметр
+            checked = isDarkTheme,
             onCheckedChange = { newValue ->
-                onThemeChange(newValue) // Сообщаем наверх
+                activity?.displayMessage("Темная тема: ${if (newValue) "включена" else "выключена"}")
+                onThemeChange(newValue)
             },
             modifier = Modifier.fillMaxWidth()
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = ::copyJsonToClipboard,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Text(
+                text = "Скопировать JSON услуг",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
     }
 }
